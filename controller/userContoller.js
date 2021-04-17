@@ -1,6 +1,5 @@
 const User = require("./../models/SignUp");
 const jwt = require("jsonwebtoken");
-
 const token = (id) => {
   return jwt.sign({ id }, process.env.SECERTE_KEY);
 };
@@ -15,6 +14,7 @@ exports.signUp = async (req, res) => {
         id: data._id,
         name: data.name,
         email: data.email,
+        profilePic:data.profilePic,
       },
       message: null,
       status: "success",
@@ -23,9 +23,9 @@ exports.signUp = async (req, res) => {
     console.log(error);
     res.status(400).json({
       status: "fails",
-      data: {
-        details: error,
-      },
+      message: "something went wrong",
+      data: null,
+
     });
   }
 };
@@ -53,7 +53,8 @@ exports.login = async (req, res) => {
         token: token1,
         id: user._id,
         name: user.name,
-        email: email,
+        email: user.email,
+        profilePic:user.profilePic,
       },
       message: null,
       status: "success",
@@ -62,17 +63,21 @@ exports.login = async (req, res) => {
     console.log(error);
     res.status(400).json({
       status: "fail",
-      details: error,
+      details: "seomething went wrong",
     });
   }
 };
 
 exports.allUser = async (req, res) => {
   try {
-    const users = await User.find();
+      let usersArray= [];
+    const id = res.locals.compID.id;
+
+    const users = await User.find({_id:{$ne:id}});
+    
     res.status(200).json({ status: "success", data: users });
   } catch (error) {
-    console.console.log(error);
-    res.status(400).json({ status: "fail", error: error });
+    console.log(error);
+    res.status(400).json({ status: "fail", error: "something went wrong" });
   }
 };
